@@ -1,0 +1,6 @@
+ANSIBLE 6
+
+Playbook -- file method, want to execute more than one task
+playbook are writtern in YAML OR JSON FORMAT
+YAML/JSON --> data representation.
+

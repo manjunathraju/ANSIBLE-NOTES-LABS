@@ -1,0 +1,156 @@
+ANSIBLE -10
+
+variables continue:
+
+prog 5: wirte an ansible playbook variables declare in host inventory files.
+
+step1: Goto vi /etc/ansible/hosts
+
+192.168.1.1 mypkg= apache2,php,mysql mydir=/opt/tomcat
+172.16.1.1  mypkg= nodejs,npm,mongo mydir=/opt/MERN
+
+---
+- name: Install java on ubuntu
+  hosts: all
+  become: yes   
+  tasks:    
+    - name: Install apache server
+      apt:
+        name: "{{mypkg}}"
+        update_cache= yes
+        state: present        
+    
+    - name: create directory
+      file:
+        path: "{{mydir}}"
+        state: directory
+
+# It read the variable from host inventory file and install on host servers
+
+NOTE: vars declare inside file & declars var in host inventory file ansible which gives high priority to variable declared in host inventory file.
+---------------------------------------------------------------------
+prog 6:
+
+Group based host variable:
+Declaring an variable in host inventory file for multiple ip's its very difficult to maintain for solution 
+
+vi /etc/ansible/hosts
+
+[web]
+172.15.1.1
+192.168.1.1
+
+[app]
+16.10.12.1
+
+[web:vars]
+mypkg=apache2,php,mysql
+mydir=/opt/tomcat
+
+[app:vars]
+mypkg=nodejs,nfs,curl
+mydir=/opt/mern
+myfile=/etc/passwd
+
+
+---
+- name: Install java on ubuntu
+  hosts: all
+  become: yes   
+  tasks:    
+    - name: Install apache server
+      apt:
+        name: "{{mypkg}}"
+        update_cache= yes
+        state: present        
+    
+    - name: create directory
+      file:
+        path: "{{mydir}}"
+        state: directory
+
+$ansible-playbook filename.yaml
+
+-----------------------------------------------------------------
+prog 7:
+
+On invertory host file group declared 100 of server ip address, suppose i need to install different packages on 1 server out of 100, here is the solution
+Note: On 192.168.1.1 particular server it will only install the variable litespped and rest of other ip address on web group it will install variable declared on [web:vars].
+
+vi /etc/ansible/hosts
+
+[web]
+172.15.1.1 
+192.168.1.1 mypkg=litespeed,php8,mariadb mydir=/var/www/html
+
+[app]
+16.10.12.1
+
+[web:vars]
+mypkg=apache2,php,mysql
+mydir=/opt/tomcat
+
+[app:vars]
+mypkg=nodejs,nfs,curl
+mydir=/opt/mern
+myfile=/etc/passwd
+
+---
+- name: Install java on ubuntu
+  hosts: all
+  become: yes   
+  tasks:    
+    - name: Install apache server
+      apt:
+        name: "{{mypkg}}"
+        update_cache= yes
+        state: present        
+    
+    - name: create directory
+      file:
+        path: "{{mydir}}"
+        state: directory
+
+$ansible-playbook filename.yaml
+
+---------------------------------------------------------------
+
+ANSIBLE LOOPS
+  - simple loop: item, with_items -- pre defined variables used in loops in ansible
+  - nested loop
+  - hash loop
+
+
+simple Loops is used ie suppose need to copy multiple files at time on all hosts server
+eg: 
+---
+- name: coping files
+  hosts: all
+  become: yes   
+  tasks:    
+    - copy:
+        src: /etc/passwd
+	dest: /tmp/
+    - copy:
+        src: /etc/shadow
+	dest: /tmp/
+     - copy:
+        src: /etc/groups
+	dest: /tmp/
+
+But this is not an good practice to COPY files to host servers, but using loops can multiple copies an files to host server here is the solution:
+
+---
+- name: coping files
+  hosts: all
+  become: yes   
+  tasks:    
+    - copy:
+        src: "{{ item }}"
+	dest: /tmp/
+      with_items:
+        - /etc/passwd
+        - /etc/shadow
+	- /etc/groups
+
+

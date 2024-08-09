@@ -1,0 +1,144 @@
+ANSIBLE 11
+
+ANSIBLE LOOPS:
+
+Prog 2:
+
+---
+- name: coping files
+  hosts: all
+  become: yes   
+  tasks:    
+    - copy:
+        src: "{{ item }}"
+	dest: /tmp/
+      with_items:
+        - /etc/passwd
+        - /etc/shadow
+	- /etc/groups
+    
+    - file:
+        path: "{{ item }}"
+	state: directory
+      with_items:
+	- /tmp/cloud-1
+	- /tmp/cloud-2
+	- /tmp/cloud-3
+
+     - copy:
+	 src: /etc/passwd
+	 dest: "{{ item }}"
+       with_items:
+	- /tmp/cloud-1
+	- /tmp/cloud-2
+	- /tmp/cloud-3
+
+----------------------------------------------------------
+prog 4: ansible loops with variable
+NOTE: Variable always declare before tasks on ansible.
+
+---
+- name: coping files
+  hosts: all
+  become: yes  
+  vars:
+    mydir:
+      - /tmp/cloud-1 
+      - /tmp/cloud-2
+      - /tmp/cloud-3
+    myfile:
+      - /etc/passwd
+      - /etc/shadow
+      - /etc/groups
+  tasks:    
+    - copy:
+        src: "{{ item }}"
+	dest: /tmp/
+      with_items:
+        - "{{ myfile }}"
+    
+    - file:
+        path: "{{ item }}"
+	state: directory
+      with_items:
+	- "{{ mydir }}"
+
+     - copy:
+	 src: /etc/passwd
+	 dest: "{{ item }}"
+       with_items:
+	- "{{ mydir }}"
+
+--------------------------------------------
+
+prog 5: using simple loop to install packages 
+
+---
+- name: Install software using simple loops
+  become: yes
+  tasks:
+    - apt:
+        name: "{{ item }}"
+    	state: present
+      with_items:
+	- apache2
+	- wget
+	- curl
+
+-----------------------------------------------
+
+prog 6: Nested looping use to copy file src to dest 
+
+---
+- name: coping files
+  hosts: all
+  become: yes   
+  tasks:    
+    - copy:
+        src: "{{ item[0] }}"
+	dest: "{{ item[1]}}"
+      with_nested:
+	- /etc/passwd
+	- /tmp
+
+-------------------------------------------------------
+
+prog 7: Using nested loop coping multiple files in multiple directory using nested loop
+
+---
+- name: coping files
+  hosts: all
+  become: yes   
+  tasks:    
+    - copy:
+        src: "{{ item[0] }}"
+	dest: "{{ item[1]}}"
+      with_nested:
+	- [ '/etc/passwd','/etc/shadow']
+	- [ '/tmp', '/opt']
+--------------------------------------------------------------------
+
+prog 8: Using nested loop coping multiple files in multiple directory using variables
+
+---
+- name: coping files
+  hosts: all
+  become: yes 
+  vars:
+    myfile:
+      - /etc/passwd
+      - /etc/shadow
+    mydir:
+      - /tmp
+      - /opt  
+  tasks:    
+    - copy:
+        src: "{{ item[0] }}"
+	dest: "{{ item[1]}}"
+      with_nested:
+	- "{{ myfile }}"
+	- "{{ mydir }}"
+-------------------------------------------------------------
+
+
+

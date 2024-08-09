@@ -1,0 +1,127 @@
+ANSIBLE 12
+
+HASH LOOP: Using hash loop can copy particular file to particular directory.
+
+---
+- name: Hash loop
+  hosts: all
+  become: yes
+  tasks:
+    - copy:
+        src: ""{{ item.a }}"
+        dest: ""{{ item.b }}"
+      with_items:
+        - { a: '/etc/passwd', b: '/tmp'}
+        - { a: '/etc/shadow', b: '/opt'}
+        
+---------------------------------------------------------
+prog2: Using hash loop create 3 users and assign to groups
+
+---
+- name: Create an user and group
+  hosts: all
+  become: yes
+  tasks:
+  - user:
+      name: "{{ item.username }}"
+      state: present
+      groups: "{{ item.groupname }}"
+    with_items:
+      - { username: 'rajesh', groupname: 'dev-tem' }
+      - { username: 'ramesh', groupname: 'prod-tem' }
+      
+#It will create username and group using ansible using hasing loop
+grep dev-tem /etc/groups
+grep ramesh /etc/passwd
+
+-----------------------------------------------------------
+
+Ansible conditional or conditions : When ansible condition is true then only ansible will process the task.
+
+
+ex: - hosts: all
+      tasks:
+	- apt:
+	    name: apache2
+	    state: present
+	  when: ansible_distribution == ubuntu
+
+conditions:
+==
+!=
+<
+<=
+>
+>=
+and 
+or
+
+Prog 1: Install apache software only on ubuntu OS using conditions
+
+---
+- name: Install apache2 on ubuntu
+  hosts: all
+  tasks:
+  - apt:
+      name: apache2
+      state: present
+    when: ansible_distribution == 'Ubuntu'
+    when: ansible_distribution_major_version == 18
+
+NOTE: Here when condition is try to check last condition is true the playbook will execute, if when first condition is true and last condition is false the palybook will not execute similarly viseversa when first condtion is false and last condition is true the ansible palybook will get executed.
+
+example 1: Here in this ex playbook will be executed when ansible last condition is true
+
+---
+- name: Install apache2 on ubuntu
+  hosts: all
+  tasks:
+  - apt:
+      name: apache2
+      state: present
+    when: ansible_distribution == 'Centos'
+    when: ansible_distribution_major_version == 18
+
+example 2: Here in this ex playbook will be not executed when ansible last condition is false.
+
+---
+- name: Install apache2 on ubuntu
+  hosts: all
+  tasks:
+  - apt:
+      name: apache2
+      state: present
+    when: ansible_distribution == 'Ubuntu'
+    when: ansible_distribution_major_version == 7
+
+-----------------------------------------------------------------------
+
+Prog 2: Ansible less than ( < ) condition = when ansible is less than version it will execute the playbook.
+
+---
+- name: Install apache2 on ubuntu
+  hosts: all
+  tasks:
+  - apt:
+      name: apache2
+      state: present
+    when: ansible_distribution_major_version < '19'
+-------------------------------------------------------------------
+Prog 3:
+
+AND condition: When both condition are true then ansible playbook will execute.
+
+---
+- name: Install apache2 on ubuntu
+  hosts: all
+  tasks:
+  - apt:
+      name: apache2
+      state: present
+    when: ansible_distribution_major_version == '18' and ansible_os_family== 'Ubuntu'
+
+
+
+
+      
+     

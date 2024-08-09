@@ -1,0 +1,42 @@
+ANSIBLE 5
+
+yum_repository
+yum
+service
+lineinfile
+user  ----- user account --> adduser, useradd
+group  ---- groupadd
+
+
+Download package and install on inventories
+ansible -i myhosts -m yum_repository -a 'name=yum-server description="this is custom package" file=my_package baseurl=https://download.packagename gpgcheck=no enable=yes' all
+
+ansible-doc -l | grep -i yum
+
+#Installing wget package on centos
+ansible all -m yum -a 'name=wget state=present'
+
+# Install apache web server and start the service.
+ansible all -m package -a 'name=apache2  state=present'
+ansible all -m service -a 'name=apache2 state=started'
+ansible all -m service -a 'name=apache2 state=stopped'
+ansible all -m service -a 'name=apache2 state=restarted'
+
+#Creating USER & GROUP Account using ansible
+
+ansible all -m group -a 'name=devops state=present' #creating group
+ansible all -m user -a 'name=raju comment="Devops role" uid=1050 group=devops' #Creating the user
+ansible all -m user -a 'name=raju comment="Devops role" uid=1050 group=devops state=absent' #removing the user
+
+#Lineinfile --> Operation on the file eg: need to append /etc/sudoers --> raju ALL=(ALL:ALL) ALL
+ansible all -m lineinfile -a 'path=/etc/sudoers line="raju ALL=(ALL:ALL) ALL"'
+ansible all -m lineinfile -a 'path=/etc/sudoers line="raju ALL=(ALL:ALL) ALL state=absent'  #to remove the line
+
+ansible all -m lineinfile -a 'path=/etc/sudoers line="raju ALL=(ALL:ALL) ALL insertafter=BOF'  #To insert Beginnenig of the file
+
+ansible all -m lineinfile -a 'path=/etc/sudoers line="raju ALL=(ALL:ALL) ALL insertafter="^root"  #insert raju user after root priviledge mode on sudo file.
+$visudo
+
+
+
+  

@@ -1,0 +1,166 @@
+ANSIBLE 8:
+
+$ ansible all --list-hosts
+
+
+Write an ansible playbook to install apache,java packages
+
+
+---
+- name: This is my first playbook
+  hosts: all
+  become: yes
+  tasks:
+    - name: Apache install
+      apt:
+        name: apache2
+        state: present
+
+    - name: restart/enable service
+      service:
+        name: apache2
+        state: restarted
+        enable: yes
+
+
+program 2: Write an multiple task and execute on single playbook file on different server
+
+
+---
+- name: This is my first task playbook
+  hosts: app-server
+  become: yes
+  tasks:
+    - copy:
+        src: /etc/passwd
+        dest: /tmp
+        owner: devops
+        group: devops
+        mode: 0777
+
+    - file:
+        path: /opt/ansible
+        state: directory
+
+- name: This is my second teask playbook
+  hosts: web-server
+  become: yes
+  tasks:
+    - name: Apache install
+      apt:
+        name: apache2
+        state: present
+
+    - name: restart/enable service
+      service:
+        name: apache2
+        state: restarted
+        enable: yes
+
+$ ansbile-playbook filename.yaml --syntax-check   # to check the fileformat of ansible
+
+--------------------------------------------------------------------
+Ansible variable:
+
+import_tasks: This playbook will be preprocessed before the execution var=
+include_tasks: This playbook will be processed during the execution of playbook file, var=
+
+Prog 3: Import task from multi files on ansible playbook
+
+importtask.yaml
+
+---
+- name: This is my first task playbook
+  hosts: app-server
+  become: yes
+  tasks:
+    - import_tasks: task1.yaml
+
+- name: This is my second teask playbook
+  hosts: web-server
+  become: yes
+  tasks:
+    - import_tasks: task2.yaml
+
+$ nano task1.yaml
+
+---
+  - name: copy and create files
+    hosts: web-server
+    become: yes
+    - tasks:
+      copy:
+        src: /etc/passwd
+        dest: /tmp
+        owner: devops
+        group: devops
+        mode: 0777
+
+    - file:
+        path: /opt/ansible
+        state: directory
+
+$ nano task2.yaml
+
+---
+  - name: This is my second teask playbook
+  hosts: web-server
+  become: yes
+  tasks:
+    - name: Apache install
+      apt:
+        name: apache2
+        state: present
+
+    - name: restart/enable service
+      service:
+        name: apache2
+        state: restarted
+        enable: yes
+-------------------------------------------------------------
+
+prog4: Host an website on host server.
+
+
+---
+- name: Install an apache webserver
+  hosts: all
+  become: yes
+  tasks:
+    - name: Installing apache package
+      apt:
+        name: apache2
+        update_cache: yes
+        state: present
+
+    - name: Coping the sourcecode from src to /var/www/html
+      copy:
+        src: /sourcecode/
+        dest: /var/www/html/
+
+    - name: Start apache2 server
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Enable port 8080
+      lineinfile:
+        path: /etc/apache2/ports.conf
+        regexp: '^Listen'
+        insertafter: '^#Listen'
+        line: Listen 8080
+-----------------------------------------------------------------
+
+prog 5: Write an playbook to install java package on servers
+
+---
+- name: Install an java webserver
+  hosts: all
+  become: yes
+  tasks:
+    - name: Installing java package
+      apt:
+        name: openjdk8
+	state: present
+

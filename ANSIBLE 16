@@ -1,0 +1,102 @@
+ANSIBLE 16
+
+Dry run: 
+How to check ansible playbook dry run?
+ans: Before executing ansible playbook using --check command use dry run to check ansible playbook
+eg: $ ansible-playbook filename.yaml --check
+
+Inventory --> /etc/ansible/hosts ---> This file in INI format
+
+[] -- It is used for grouping and [] is part of INI format
+---------------------------------------------------------
+
+Write playbook for install LAMP
+
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name:  Fail for other platforms
+    fail:
+      msg: "This playbook developed only for ubuntu
+    when: ansible_os_family != "Debian"  
+  -  name: "Installing apache2"
+     apt:
+       name: apache2
+       update_cache: yes
+       state: present
+        
+   - name: Start the apache service
+     service:
+       name: apache2
+       enabled: yes
+       state: started
+       
+   - name: Installing php modules
+     apt:
+       name: "{{ item }}"
+       state: present
+     loop:
+     - php
+     - php-common
+     - php-mysql
+     - php-gd
+     - php-cli
+     
+   - name: Copy index file to /var/www/html
+     copy:
+       src: index.php
+       dest: /var/www/html/index.php
+       
+   - name: Restart the apache service
+     service:
+       name: apache2
+       state: restarted
+       
+-------------------------------------------------
+
+Prog 2: Using Handler to install LAMP to optimize the code.
+
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name:  Fail for other platforms
+    fail:
+      msg: "This playbook developed only for ubuntu
+    when: ansible_os_family != "Debian"  
+    
+  -  name: "Installing apache2"
+     apt:
+       name: apache2
+       update_cache: yes
+       state: present
+     notify: restart_apache
+        
+   - name: Installing php modules
+     apt:
+       name: "{{ item }}"
+       state: present
+     loop:
+     - php
+     - php-common
+     - php-mysql
+     - php-gd
+     - php-cli
+     
+   - name: Copy index file to /var/www/html
+     copy:
+       src: index.php
+       dest: /var/www/html/index.php
+     notify: restart_apache
+     
+       
+   handlers:
+   - name: restart_apache
+     service:
+       name: apache2
+       enabled: yes
+       state: restarted
+
+NOTE: Advantage of handlers is on task it will check any changes on task, if changes the notify will trigger and restart the apache, if no changes done on task the handler will not be executed. 
+

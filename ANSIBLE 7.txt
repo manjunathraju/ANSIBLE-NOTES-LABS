@@ -1,0 +1,35 @@
+ANSIBLE 7
+---------
+
+ANSIBLE PLAYBOOK
+
+There are 3 different playbook format:
+1. Single line format
+2 .Multi line format
+3. Dictionary format
+
+ansible all -m ping
+
+Fist ansible playbook program to install apache:
+
+---
+- name: This is my first playbook
+  hosts: all
+  become: yes  #execute the command as an sudo user.
+  tasks:
+    - copy:
+        src: /etc/passwd
+        dest: /tmp
+        owner: devops
+        group: devops
+        mode: 0777
+
+    - file:
+        path: /opt/ansible
+        state: directory
+
+
+    - apt:
+        name: apache2
+        update_cache: yes
+        state: present

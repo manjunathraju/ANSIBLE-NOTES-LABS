@@ -1,0 +1,53 @@
+ANSIBLE 13
+
+ADVANCE CONDITIONS: There 3 types of ansible server coditions:
+1. stat
+2. register
+3. debug
+
+1. stat: stat module, you can get/return the information regarding a file existance.
+
+2. register: Register module is used to store the output of any of other modules with some variable names
+
+3. debug: Able to display the output of modules.
+
+Prog1: Check if apache server is running or not, if not running restart the apache
+
+---
+- name: check apache is running or not
+  hosts: all
+  become: yes
+  tasks:
+    - command: systemctl is-active apache2
+      register: report
+    
+    - debug: var=report
+
+    - service:
+	name: apache2
+	state: restarted
+      when: report.rc == 0
+
+------------------------------------------------------------------
+
+
+ANSIBLE NOTIFY AND HANDLERS : When any configuration file has been done changes automatically should notify the changes and need to restart the services.
+eg: suppose /etc/apache2/config, here in this apache configuration file if it get changed/ port no has been changed to 80 to 8080 should get nofity and restart the service ie service apache2 restart.
+
+---
+- name: check apache is running or not
+  hosts: all
+  become: yes
+  tasks:
+    - lineinfile:
+        path: /etc/ssh/sshd_config
+        line: DenyUsers raju
+      notify: myhander1
+
+  handlers:
+    - name: myhander1
+      service:
+        name: sshd
+	state: restarted
+
+

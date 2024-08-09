@@ -1,0 +1,93 @@
+ANSIBLE 14
+
+Ansible tags, Ansible ignore_errors, ansible blocks, rescue, always, ansible vault.
+
+ANSIBLE TAGS: In ansible playbook file having multiple tasks, suppose if i need execute particular tasks on playbook we use ansible tags.
+eg:
+---
+- hosts: all
+  become: yes
+  tasks:
+    - copy:
+        src: /etc/passwd
+	dest: /tmp
+      tags: dev-team
+    
+    - file:
+	path: /tmp/reaj
+	state: directory
+      tags: test-team
+
+$ ansible-playbook filename.yaml
+$ansible-playbook filename.yaml --tags=dev-team
+
+suppose if you want to execute other tasks ie file task:
+$ansible-playbook filename.yaml --tags=test-team
+
+Prog1: 
+
+---
+- hosts: all
+  become: yes
+  tasks:
+    - copy:
+        src: /etc/passwd
+	dest: /tmp
+      tags: dev-team
+    
+    - file:
+	path: /tmp/reaj
+	state: directory
+      tags: test-team
+    
+     - apt:
+	name: apache2
+	state: present
+       tags: prod-team
+
+     - service:
+	name: apache2
+	enabled: yes
+	state: started
+       tags: admin-team
+
+$anbile-playbook filename.yaml 
+$ansible-playbook filename.yaml --tags=dev-team # only copy module will be executed.
+$ansible-playbook filename.yaml --skip-tags=dev-team #It will skip the dev-team tag and execute other task modules on playbook.
+--------------------------------------------------------------------------
+
+Ansible ignore_errors: Usally on ansible playbook if any one task gets fail the ansible playbook will comeout throw an error it will not execute other tasks, ansible ignore_error is use when one task gets an error it ignores and execute other task on ansible playbook
+Prog1 eg:
+
+---
+- hosts: all
+  become: yes
+  tasks:
+    - copy:
+        src: /etc/group123 #Here copy task has error, so it ignores and execute other tasks
+	dest: /tmp
+      ignore_errors: yes
+    
+    - file:
+	path: /tmp/reaj
+	state: directory
+      ignore_errors: yes
+    
+     - apt:
+	name: apache2
+	state: present
+       ignore_errors: yes
+
+     - service:
+	name: apache2
+	enabled: yes
+	state: started
+       ignore_errors: yes
+
+$ansible-playbook filename.yaml  
+
+
+
+       
+ 
+

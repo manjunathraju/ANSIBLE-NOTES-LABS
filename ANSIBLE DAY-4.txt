@@ -1,0 +1,48 @@
+ANSIBLE DAY-4
+
+two ways to use ansible:
+
+1. Ad-Hoc -- command line using ansible with module and command.
+
+2 ansible-playbook -- writing in yaml file
+
+
+Have 4500+ modules ie copy, file etc....
+to see all the modules command: ansible-doc -l
+
+
+COPY cmd MODULE:
+
+ansible all -m copy -a 'src=/home/filename dest=/opt"
+ansible all -m copy -a 'src=/home/filename dest=/opt mode=777"
+ansible all -m copy -a 'src=/home/filename dest=/opt owner: devops group: devteam"
+ansible all -m copy -a 'src=/home/filename dest=/opt backup=yes"
+#Copying files from within node's
+ansible all -m copy -a 'src=/home/filename dest=/opt remote_src=yes mode=777'
+#Copying files from nodes to ansible-server
+ansible all -m fetch -a 'src=/home/filename dest=/opt'
+
+FILE MODULE
+
+ansible all -m file -a 'path=/tmp/raju state=directory'  # To create directory
+ansible all -m file -a 'path=/tmp/raju state=absent' #To remove file/dir
+ansible all -m file -a 'path=/tmp/raju state=touch' #To create a file
+
+SHELL MODULE
+
+COPY FILES TO NODES AND EXECUTE THE Shellscript file
+ansible all -m copy -a 'src=/home/shellscript.sh dest=/opt'
+ansible all -m shell -a 'sh /home/shellscript.sh'
+
+PACKAGE MODULE
+
+ansible all -m package -a 'name=apache2 state=present'
+ansible all -m package -a 'name=apache2 state=present use=apt' #ubuntu package
+ansible all -m package -a 'name=httpd state=present use=yum' #centos package
+ansible-doc package #for more package modules.
+
+
+
+
+
+
